@@ -1,4 +1,5 @@
-import logging, coloredlogs
+import coloredlogs
+import logging
 
 logger = logging.getLogger('aras')
 coloredlogs.install(level='DEBUG', logger=logger)
@@ -10,9 +11,4 @@ coloredlogs.install(level='DEBUG', logger=logger)
 # logger.addHandler(console_handler)
 
 
-# logger.info('INFO')
-# logger.warning('WARNING')
-# logger.debug('DEBUG')
-# logger.error('ERROR')
-# logger.critical('CRITICAL')
 
