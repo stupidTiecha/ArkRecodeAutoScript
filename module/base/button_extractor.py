@@ -7,8 +7,24 @@ from PIL import Image
 from module.base.logger import logger
 from module.base.utils import image_size, get_bbox, load_image, get_color
 
+IMPORT_EXP = """from module.base.button import Button
+
+"""
+IMPORT_EXP = IMPORT_EXP.strip().split('\n') + ['']
+
 
 class ButtonExtractor:
+
+    def __init__(self, file, is_debug):
+        """
+        Args:
+            file(str): xxx.png or xxx.gif
+        """
+        self.name, self.ext = os.path.splitext(file)
+        self.area, self.color, self.button, self.file = (), (), (), ''
+        self.is_debug = is_debug
+        self.load()
+
     @staticmethod
     def _extract(image, file):
         size = image_size(image)
@@ -19,13 +35,63 @@ class ButtonExtractor:
         mean = tuple(np.rint(mean).astype(int))
         return bbox, mean
 
+    def load(self):
+        file = self.get_file()
+        area, color = self._extract(load_image(file), file)
+        button = area
+        self.area = area
+        self.color = color
+        self.button = button
+        self.file = file
+
+    def get_file(self):
+        file = f'{self.name}{self.ext}'
+        return os.path.join(BaseConst.BUTTON_IMAGES_FOLDER_DEBUG, file)
+
+    @property
+    def expression(self):
+        if not self.is_debug:
+            self.file = self.file[4:]
+        return '%s = Button(area=%s, color=%s, button=%s, file=\'%s\')' % (
+            self.name, self.area, self.color, self.button, self.file)
+
+
+class ModuleExtractor:
+    def __init__(self, is_debug=False):
+        self.is_debug = is_debug
+
+    @property
+    def expression(self):
+        exp = []
+        for file in get_button_path():
+            exp.append(ButtonExtractor(file, self.is_debug).expression)
+            logger.info(f'extract Image info : {file}')
+        exp = IMPORT_EXP + exp
+        return exp
+
+    def write(self):
+        file = BaseConst.BUTTON_ASSETS_FILE
+        if os.path.exists(file):
+            backup = file + '.BAK'
+            if os.path.exists(backup):
+                os.remove(backup)
+                logger.debug(f'remove old backup : {backup}')
+            os.rename(file, backup)
+            logger.debug(f'rename old {file} to {file} .BAK')
+        with open(BaseConst.BUTTON_ASSETS_FILE, 'w', newline='') as file:
+            for text in self.expression:
+                file.write(text + '\n')
+
 
 def get_button_path():
-    return os.listdir(BaseConst.BUTTON_IMAGES_PATH)
+    return os.listdir(BaseConst.BUTTON_IMAGES_FOLDER_DEBUG)
 
 
 if __name__ == '__main__':
-    for _ in get_button_path():
+    m = ModuleExtractor(is_debug=True)
+    m.write()
+    """
+        for _ in get_button_path():
         # img = Image.open(BaseConst.BUTTON_IMAGES_PATH + _.__str__())
         # img2 = np.array(img)
         # img = img.getchannel(0)
@@ -44,3 +110,5 @@ if __name__ == '__main__':
         # x1, y1, x2, y2 = bbox
         logger.debug(f'Border: {border}')
         logger.debug(f'{x1, y1, x2, y2} ---------> {bbox1}')
+
+    """

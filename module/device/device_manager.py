@@ -1,5 +1,6 @@
 import uiautomator2 as u2
 from module.base.config import Config
+from module.base.logger import logger
 
 
 def Singleton(cls):
@@ -23,7 +24,7 @@ class DeviceManager:
         serials = serials.split(",")
         for _ in range(serials.__len__()):
             self.devices.__setitem__(serials[_], u2.connect(serials[_]))
-        print("Device Manager init complete")
+        logger.debug("Device Manager init complete")
 
 
 def get_device(serial):
