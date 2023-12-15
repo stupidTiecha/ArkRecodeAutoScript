@@ -1,6 +1,10 @@
+import os
+
 import cv2
 import numpy as np
 from PIL import Image
+
+from module.base.logger import logger
 
 
 def load_image(file, area: tuple[int, int, int, int] = None):
@@ -86,3 +90,16 @@ def get_color(image, area):
     temp = crop(image, area, copy=False)
     color = cv2.mean(temp)
     return color[:3]
+
+
+def get_app_root():
+    current = os.getcwd()
+    if (root := 'ArkRecodeAutoScript') in current:
+        return current[:(18 + root.__len__())]
+    else:
+        return current
+
+
+if __name__ == '__main__':
+    logger.debug(os.getcwd())
+    logger.debug(get_app_root())
