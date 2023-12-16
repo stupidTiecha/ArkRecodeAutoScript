@@ -88,7 +88,7 @@ def get_button_path():
 
 
 if __name__ == '__main__':
-    m = ModuleExtractor(is_debug=True)
+    m = ModuleExtractor(is_debug=False)
     m.write()
     """
         for _ in get_button_path():
